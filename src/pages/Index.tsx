@@ -45,18 +45,8 @@ const Index = () => {
       if (insertError) throw insertError;
 
       console.log('Successfully inserted signup');
-
-      // Send welcome email
-      const { error: emailError } = await supabase.functions.invoke('send-welcome-email', {
-        body: { email: formData.email, name: formData.full_name }
-      });
-
-      if (emailError) {
-        console.error('Error sending welcome email:', emailError);
-        // Don't throw here, as the signup was successful
-      }
-
       toast.success("Successfully signed up for the bootcamp!");
+      
       setFormData({
         full_name: "",
         email: "",
