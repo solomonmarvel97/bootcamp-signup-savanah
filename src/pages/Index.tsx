@@ -22,6 +22,8 @@ const Index = () => {
     setIsLoading(true);
 
     try {
+      console.log('Submitting form data:', formData);
+      
       // Check for existing email
       const { data: existingUser } = await supabase
         .from('bootcamp_signups')
@@ -36,16 +38,23 @@ const Index = () => {
       }
 
       // Insert new signup
-      const { error } = await supabase
+      const { error: insertError } = await supabase
         .from('bootcamp_signups')
         .insert([formData]);
 
-      if (error) throw error;
+      if (insertError) throw insertError;
 
-      // Send email notification using Supabase Edge Function
-      await supabase.functions.invoke('send-welcome-email', {
+      console.log('Successfully inserted signup');
+
+      // Send welcome email
+      const { error: emailError } = await supabase.functions.invoke('send-welcome-email', {
         body: { email: formData.email, name: formData.full_name }
       });
+
+      if (emailError) {
+        console.error('Error sending welcome email:', emailError);
+        // Don't throw here, as the signup was successful
+      }
 
       toast.success("Successfully signed up for the bootcamp!");
       setFormData({
